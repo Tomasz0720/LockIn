@@ -96,6 +96,7 @@ public class ClientApplication extends Application {
         textField.setEditable(true);
         textField.setPrefSize(width/2-20-70, 15);
 
+        //adding all the buttons, and styles etc.
         Button sendBtn = new Button("Send");
         sendBtn.getStyleClass().add("custom-button");
         sendBtn.setPrefSize(80, 40);
@@ -114,7 +115,7 @@ public class ClientApplication extends Application {
         VBox questList = new VBox();
 
         questList.setSpacing(5);
-
+        //this sets up all the practice questions that are used, and displays them for your ui
         ArrayList<practicePanels.PracticeQuestion> insertPanels = practicePanels.InitalizeJsonLoad();
         for (practicePanels.PracticeQuestion pq : insertPanels) {
             questList.getChildren().add(pq.UI);
@@ -135,6 +136,7 @@ public class ClientApplication extends Application {
 
         newQuestion.setFont(Font.font("Arial", FontWeight.BOLD, 20));
 
+        //runs the function that will set up a new dialog box to fill in your question
         newQuestion.setOnAction(event ->{
             //TO DO: add Question to Json file
             addPractice.enterPracticeQ();
@@ -162,7 +164,10 @@ public class ClientApplication extends Application {
         VBox root = new VBox(tabPane);
         Scene scene = new Scene(root, width, height);
 
+        //import css files
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/workSpaceStyle.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/AnswerFormStyle.css")).toExternalForm());
+
         primaryStage.setTitle(username + "'s Workspace");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -187,6 +192,7 @@ public class ClientApplication extends Application {
             }
         });
 
+        //buttons have different functions associated with them
         textField.setOnAction(event -> sendMessage());
         sendBtn.setOnAction(event -> sendMessage());
 
@@ -196,15 +202,28 @@ public class ClientApplication extends Application {
                 while ((message = in.readLine()) != null) {
                     final String finalMessage = message;
                     Platform.runLater(() -> {
-                        if (finalMessage.contains("ANS-")) {
-                            String msg = finalMessage.substring(4);
-                            textArea.appendText(username + " solved " + msg + "\n");
+                        if (finalMessage.contains("ANSMSG-")) {
+                            String msg = finalMessage.replace("ANSMSG-", "");
+                            textArea.appendText( msg + "\n");
+
+                        }
+                        else if(finalMessage.contains("ANS_")) {
+                            String[] solveQuestion = finalMessage.split("_");
+                            String answer = solveQuestion[1];
+                            String title = solveQuestion[2];
+                            for(practicePanels.PracticeQuestion q : practicePanels.listOfQuestions){
+                                if(q.getTitle().equals(title)){
+                                    q.setAnswer(answer);
+                                }
+                            }
+                        } else if(finalMessage.contains("NEWMSG")){
+                            String msg = finalMessage.replace("NEWMSG", "");
+                            textArea.appendText( msg + "\n");
                         }
                         else if(finalMessage.contains("NEWQ")) {
                             String[] add_new_question = finalMessage.split("_");
                             //String id, String title, String desc, String answer, int level
                             practicePanels.PracticeQuestion new_question = new practicePanels.PracticeQuestion(add_new_question[1], add_new_question[2],add_new_question[3],add_new_question[4],Integer.parseInt(add_new_question[5]));
-                            practicePanels.addQuestionToJson(new_question);
                             practicePanels.listOfQuestions.add(new_question);
 
                             practicePanels.PracticeQuestion pq = practicePanels.listOfQuestions.getLast();
@@ -252,16 +271,17 @@ public class ClientApplication extends Application {
     }
 
     private static void sendMessage(){
-        String message = textField.getText();
+        String message = textField.getText(); //this is for normal chat messages
         if(!message.isEmpty()){
             out.println(message);
             textField.clear();
         }
     }
 
-    public static void sendAnswerMessage(String message, String id){
-        if(!message.isEmpty()){
-            out.println("ANS-" + username + " answered " + id + "!" );
+    public static void sendAnswerMessage(String ans, String title){
+        if(!ans.isEmpty()){
+            out.println("ANSMSG-" + username + " answered " + title + "!");//sends the message to be displayed on chat
+            out.println("ANS_"+ans+"_"+title);//sends the actual answer to moify the question posted
         }
     }//hello!test git
     public static void setUsername(String username){
@@ -269,8 +289,8 @@ public class ClientApplication extends Application {
     }
     //String id, int level, String title, String desc, String answer
     public static void sendQuestion(String id, int level, String title, String desc, String answer){
-        out.println("NEWQ_"+id+"_"+title+"_"+desc+"_"+answer+"_"+level);
-        out.println("New Question: " + title + ", By: " + username);
+        out.println("NEWQ_"+id+"_"+title+"_"+desc+"_"+answer+"_"+level);//the values that make up a new practice question to be displayed
+        out.println("NEWMSGNew Question: " + title + ", By: " + username);//this will be the message displayed on chat
     }
 
     // Send commands to the Pomodoro timer

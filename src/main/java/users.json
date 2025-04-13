@@ -1,16 +1,8 @@
 {
   "users": [
     {
-      "username": "mila",
-      "password": "sybau"
-    },
-    {
       "username": "bill",
       "password": "password"
-    },
-    {
-      "username": "mila-launen",
-      "password": "1234"
     },
     {
       "username": "petra",
@@ -21,52 +13,28 @@
       "password": "password2005"
     },
     {
-      "username": "milk",
-      "password": "tea"
-    },
-    {
-      "username": "mila",
-      "password": "1234"
-    },
-    {
-      "username": "petra",
-      "password": "2005"
-    },
-    {
-      "username": "milaaaa",
-      "password": "password"
-    },
-    {
-      "username": "herrrooo",
-      "password": "milaaa"
+      "username": "milkTeaLover",
+      "password": "bubbleTea"
     },
     {
       "username": "claire",
       "password": "password"
     },
     {
-      "username": "kendra",
-      "password": "kendra"
+      "username": "mila.launen",
+      "password": "password"
     },
     {
-      "username": "tomaz",
-      "password": "abc123"
+      "username": "mila.annikki.launen",
+      "password": "password"
     },
     {
-      "username": "mila-annikki-launen",
-      "password": "password2005"
+      "username": "jellybeans",
+      "password": "password"
     },
     {
-      "username": "portina69",
-      "password": "12345"
-    },
-    {
-      "username": "ashton",
-      "password": "zoey2008"
-    },
-    {
-      "username": "helloo!!!",
-      "password": "passwordd"
+      "username": "sundae",
+      "password": "password"
     }
   ]
 }

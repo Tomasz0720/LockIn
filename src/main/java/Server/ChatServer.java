@@ -38,14 +38,12 @@ public class ChatServer {
 
                 // Prompt client for username
                 username = in.readLine();
-                //TODO: add to clients
                 synchronized (clients) {
                     clients.put(username, this);
                 }
 
                 // Send list of connected clients and their names
                 StringBuilder clientsList = new StringBuilder("Connected users");
-                // TODO: send list to client
                 synchronized (clients) {
                     clientsList.append("(").append(clients.size()).append("): ");
                     for (String name : clients.keySet()) {
@@ -69,16 +67,16 @@ public class ChatServer {
                 String message;
 
                 while ((message = in.readLine()) != null) {
-                    if(message.contains("ANS-")){
+                    if(message.contains("ANS-")){ //if the message has ANS-, identifies it as a sending data type msg
                         System.out.println(message);
                     }
                     else if(message.contains("NEWQ")){
-                        System.out.println(message);
+                        System.out.println(message); //same thing, this is identified as a data msg
                     }
                     else{
                         System.out.println(username + ": " + message);
                     }
-                    // TODO: broadcast message
+                    //broadcasts the message to each client
                     synchronized (clientHandlers) {
                         for (ClientHandler handler : clientHandlers) {
                             if (message.startsWith("POMO-")) { // Pomodoro Sync

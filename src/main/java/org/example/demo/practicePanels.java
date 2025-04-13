@@ -2,28 +2,35 @@ package org.example.demo;
 //libraries to import
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.awt.*;
+import java.awt.TextArea;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 class question{
     String id;
@@ -55,7 +62,7 @@ public class practicePanels {
         private String answer;
         private int level;
         private boolean solved;
-        private Button tryButton;
+        private static Button tryButton;
 
         public GridPane UI;
 
@@ -85,9 +92,12 @@ public class practicePanels {
             vBox.setSpacing(5);
 
             Label idLabel = new Label("ID: " +id + " Level: " +level);
-            idLabel.setStyle("-fx-font-weight: bold");
+            idLabel.setStyle("-fx-font-size: 11px; -fx-font-family: 'Tahoma'; -fx-text-fill: #032967;");
+
 
             Label titleLabel = new Label(this.title);
+            titleLabel.setStyle("-fx-font-size: 17px; -fx-font-family: 'Tahoma'; -fx-font-weight: bold; -fx-text-fill: #2069d8;");
+
 
             vBox.getChildren().addAll(idLabel, titleLabel);
             vBox.setPrefSize(w - 100 , h-10);
@@ -116,21 +126,40 @@ public class practicePanels {
 
             tryButton.setOnAction(event -> {
                 if(this.solved == false){
-                    String ans = JOptionPane.showInputDialog(this.desc);
+                    JTextArea qtxt = new JTextArea(this.desc);
+                    qtxt.setWrapStyleWord(true);
+                    qtxt.setLineWrap(true);
+                    qtxt.setEditable(false);
+                    qtxt.setOpaque(false);
+                    qtxt.setColumns(30);
+
+                    JScrollPane scrollPane = new JScrollPane(qtxt);
+                    scrollPane.setPreferredSize(new java.awt.Dimension(350, 150));
+
+                    String ans = JOptionPane.showInputDialog(scrollPane);
                     this.answer = ans;
-                    modifyJsonAns(this.id, ans);
+                    modifyJsonAns(this.id, this.title, ans);
                     ClientApplication.sendAnswerMessage(ans, this.title);
                     this.solved  = true;
                     changeButton();
                 }
                 else{
-                    String ans = JOptionPane.showInputDialog(this.desc);
                     String message;
-                    if(!ans.equals(this.answer)){
-                       message = "Incorrect. Correct Answer: " + this.answer;
+                    JTextArea qtxt = new JTextArea(this.desc);
+                    qtxt.setWrapStyleWord(true);
+                    qtxt.setLineWrap(true);
+                    qtxt.setEditable(false);
+                    qtxt.setOpaque(false);
+                    qtxt.setColumns(30);
+                    JScrollPane scrollPane = new JScrollPane(qtxt);
+                    scrollPane.setPreferredSize(new java.awt.Dimension(350, 150));
+
+                    String ans = JOptionPane.showInputDialog(scrollPane);
+                    if(ans.equals(this.answer)){
+                        message = "Correct! Great Job!";
                     }
                     else{
-                        message = "Correct!";
+                        message = "Wrong! The correct Answer is: " + this.answer;
                     }
                     JOptionPane.showMessageDialog(null, message, "Message", JOptionPane.INFORMATION_MESSAGE);
 
@@ -143,7 +172,13 @@ public class practicePanels {
         public String getDesc(){return desc;}
         public String getAnswer(){return answer;}
 
-        private void changeButton(){
+        public void setAnswer(String ans){
+            this.answer = ans;
+            this.solved = true;
+            changeButton();
+        }
+
+        public void changeButton(){
             if (!this.solved) {
                 tryButton.setText("Solve me!");
                 tryButton.setStyle("-fx-font-weight: bold; -fx-background-color: #ff674b; -fx-text-fill: white;");
@@ -194,7 +229,9 @@ public class practicePanels {
         PracticeQuestion newQuestion = new PracticeQuestion(id, title, desc, answer, level);
         listOfQuestions.add(newQuestion);
     }
-    public static void addQuestionToJson(PracticeQuestion pq) {
+    public static void addQuestionToJson(String id, int level, String title, String desc, String answer) {
+        //String id, String title, String desc, String answer, int level
+        PracticeQuestion pq = new PracticeQuestion(id, title, desc, answer, level);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonObject jsonData;
 
@@ -224,7 +261,7 @@ public class practicePanels {
         }
     }
 
-    public static void modifyJsonAns(String questionId, String ans) {
+    public static void modifyJsonAns(String questionId, String title, String ans) {
         String filePath = mainFilePath; // Path to your JSON file
         Gson gson = new GsonBuilder().setPrettyPrinting().create(); // Create Gson instance
 
@@ -241,7 +278,7 @@ public class practicePanels {
             for (int i = 0; i < questionsArray.size(); i++) {
                 JsonObject question = questionsArray.get(i).getAsJsonObject();
                 System.out.println("Compare: "+question.get("id") + " vs " + questionId);
-                if (question.get("id").getAsString().equals(questionId)) {
+                if (question.get("id").getAsString().equals(questionId) && question.get("title").getAsString().equals(title)) {
                     // Step 4: Modify the answer of the matched question
                     question.addProperty("answer", ans); // Update the answer
 

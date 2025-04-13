@@ -11,6 +11,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,7 +20,6 @@ public class addPractice {
     addPractice(){
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Practice Question Details");
-        dialog.setHeaderText("Please enter your Question:");
 
         // Create the GridPane layout
         GridPane grid = new GridPane();
@@ -54,11 +54,9 @@ public class addPractice {
 
         Label lvlLabel = new Label("Level (1-5):");
         lvlLabel.getStyleClass().add("attributes-label");
-        Label infoLvl = new Label("invalid levels will be labeled at 1");
 
         grid.add(lvlLabel, 0, 3);
         grid.add(LevelField, 1, 3);
-        grid.add(infoLvl, 1, 4);
 
         Label descLabel = new Label("Description:");
         descLabel.getStyleClass().add("attributes-label");
@@ -66,7 +64,7 @@ public class addPractice {
         grid.add(DescArea, 1, 5);
 
         Label ansLabel = new Label("Answer:");
-        ansLabel.getStyleClass().add("attributes-label");
+        //ansLabel.getStyleClass().add("attributes-label");
 
         Label infoLabel = new Label("(if unsolved, leave blank)");
 
@@ -96,9 +94,20 @@ public class addPractice {
             String desc = DescArea.getText();
             String ans = AnswerField.getText();
             String lvl = LevelField.getText();
-            System.out.println(id + " " + title + " " + desc + " " + ans + " " + lvl);
-            //String id, int level, String title, String desc, String answer
-            ClientApplication.sendQuestion(id, lvlValid(lvl), title, desc, ans);
+            //checking if everything is valid, you entered everything and its valid
+            if(id.isEmpty() || title.isEmpty() || desc.isEmpty() || lvl.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "One of the fields is not filled. Try re-entering your question.", "Hold Up! Something's not right...", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else if(lvl_isnt_Valid(lvl)){
+                JOptionPane.showMessageDialog(null, "your level isn't valid. Try re-entering your question.", "Hold Up! Something's not right...", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else{
+                //if you didn't mess up inputting, it will now proceed to add that as a question
+                System.out.println(id + " " + title + " " + desc + " " + ans + " " + lvl);
+                //String id, int level, String title, String desc, String answer
+                practicePanels.addQuestionToJson(id, Integer.parseInt(lvl), desc, ans, title);
+                ClientApplication.sendQuestion(id, Integer.parseInt(lvl), title, desc, ans);
+            }
 
         } else {
             System.out.println("User canceled input.");
@@ -107,15 +116,16 @@ public class addPractice {
     public static void  enterPracticeQ() {
         addPractice p1 = new addPractice();
     }
-    private static int lvlValid(String id){
+    private static boolean lvl_isnt_Valid(String lvl){
+        //checking if lvl that was inputted is in range
         try{
-            int idInt = Integer.parseInt(id);
+            int idInt = Integer.parseInt(lvl);
             if(idInt > 5 || idInt < 1){
-                return 1;
+                return true;
             }
-            return idInt;
+            return false;
         } catch(NumberFormatException e){
-            return 1;
+            return false;
         }
     }
 }
